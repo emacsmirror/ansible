@@ -72,15 +72,25 @@
   :type 'file
   :group 'ansible)
 
+(defcustom ansible-vault-password-environment-variable "VAULT_PASSWORD"
+  "Environment variable containing `ansible-vault` password."
+  :type 'string
+  :group 'ansible)
+
 (defcustom ansible-vault-password 'file
   "Password for `ansible-vault'.
 This can be a file path (from `ansible-vault-password-file') or a function."
   :type '(choice
            (const
-             :tag "Use ansible-vault-password-file" file)
+             :tag "Use the contents of the file `ansible-vault-password-file`" file)
+           (const
+            :tag "Prompt for a password"
+            :value ansible-vault-prompt-for-password)
+           (const
+            :tag "Use the contents of the environment variable `ansible-vault-password-environment-variable`"
+            :value ansible-vault-password-from-environment)
            (function
-             :tag "Function"
-             :value ansible-vault-prompt-for-password)))
+             :tag "Function")))
 
 (defconst ansible-dir (file-name-directory (or load-file-name
                                                buffer-file-name)))
@@ -293,14 +303,25 @@ Used for vars, tasks, handlers, etc."
   "Font lock definitions for ansible playbooks.")
 
 
-(defun ansible-vault-prompt-for-password ()
-  "Prompt for an ansible password, store it in a temporary file.
+(defun ansible-vault-create-temp-password-file (password)
+  "Create a temporary password file from PASSWORD.
 Returns the `ansible-vault` args for the password file."
-  (let* ((pass (read-passwd "Vault Password: "))
-          (temp-file (make-temp-file "ansible-vault-pass")))
-    (write-region pass nil temp-file)
+  (let ((temp-file (make-temp-file "ansible-vault-pass")))
+    (write-region password nil temp-file)
     (setq ansible-vault-store-cleanup-file temp-file)
     (format "--vault-password-file=%s" temp-file)))
+
+(defun ansible-vault-prompt-for-password ()
+  "Prompt for an Ansible vault password, store it in a temporary file.
+Returns the `ansible-vault` args for the password file."
+  (let ((pass (read-passwd "Vault Password: ")))
+    (ansible-vault-create-temp-password-file pass)))
+
+(defun ansible-vault-password-from-environment ()
+  "Temporarily store the password from the environment in a file.
+Returns the `ansible-vault` args for the password file."
+  (let ((pass (getenv ansible-vault-password-environment-variable)))
+    (ansible-vault-create-temp-password-file pass)))
 
 (defun ansible-add-font-lock ()
   "Extend YAML with syntax highlight for ansible playbooks."
