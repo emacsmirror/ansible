@@ -1,3 +1,9 @@
+**ChangeLog since 0.4.1**
+
+#### **Added**
+-  **Use environment variables for vault password**
+  - Provide the option to read the password from the environment ([#11](https://gitlab.com/emacs-ansible/emacs-ansible/-/issues/11) [09677789](https://gitlab.com/emacs-ansible/emacs-ansible/-/commit/09677789acc4039726723f24efb0f1ad30ad6fa7))
+
 **ChangeLog since 0.4.0**
 
 #### **Changed**
