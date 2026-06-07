@@ -1,3 +1,11 @@
+**ChangeLog since 0.4.2**
+
+#### **Changed**
+- **Avoid shell-command for vault operations**
+  - Replace `shell-command` with `call-process` to eliminate shell injection risk through the vault password file path ([3901c06](https://gitlab.com/emacs-ansible/emacs-ansible/-/commit/3901c06b5c06af371d91225b29b4f6fb1c54346f))
+  - Mark `ansible-vault-password-file` as `:risky` to alert users that the file-local variable can be dangerous
+  - Refactor `ansible-vault-get-password` to return a list of arguments instead of a formatted string, enabling direct process invocation
+
 **ChangeLog since 0.4.1**
 
 #### **Added**
